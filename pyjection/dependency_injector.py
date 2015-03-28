@@ -79,11 +79,7 @@ class DependencyInjector(object):
         if service.is_singleton is True and identifier in self._singletons:
             return self._singletons[identifier]
 
-        if service.type == 'instance':
-            instance = service.subject
-        else:
-            arguments = self._generate_arguments_dict(service)
-            instance = service.subject(**arguments)
+        instance = self._get_instance(service)
 
         if service.is_singleton is True:
             self._singletons[identifier] = instance
@@ -103,6 +99,20 @@ class DependencyInjector(object):
         if identifier in self._services:
             return True
         return False
+
+    def _get_instance(self, service):
+        """
+        Return the instantiated object for the given service
+
+        :param service: The service we need an instance for
+        :type service: Service
+        :return: The instantiated object
+        """
+        if service.type == 'instance':
+            return service.subject
+        else:
+            arguments = self._generate_arguments_dict(service)
+            return service.subject(**arguments)
 
     def _generate_arguments_dict(self, service):
         """
