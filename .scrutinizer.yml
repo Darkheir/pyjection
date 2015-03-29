@@ -9,6 +9,9 @@ filter:
 build:
     environment:
         python: 3.4.1
+    dependencies:
+        before:
+            - pip install coverage
     tests:
         override:
             -
