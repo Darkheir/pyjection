@@ -118,8 +118,13 @@ class DependencyInjector(object):
         :rtype: dict
         """
         arguments = dict()
-        # @TODO: if the __init__ is from object we do nothing
-        # What if __init__ has only self ? 
+
+        #The subject extend object and han't overwritten its init
+        # It's necessary because signature can't take the __init__ from object
+        if ('__objclass__' in dir(service.subject.__init__) 
+            and service.subject.__init__.__objclass__ == object):
+            return arguments
+
         sig = signature(service.subject.__init__)
         method_parameters = OrderedDict(sig.parameters)
 

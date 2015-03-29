@@ -15,6 +15,14 @@ class MockSubject2(object):
     def __init__(self, value):
         pass
 
+# Class that use parent constructor
+class MockSubject3(MockSubject2):
+    pass
+
+# Class that use defaukt object constructor
+class MockSubject4(object):
+    pass
+
 class TestDependencyInjector(unittest.TestCase):
 
     def setUp(self):
@@ -77,6 +85,19 @@ class TestDependencyInjector(unittest.TestCase):
         result = self.injector._generate_arguments_dict(fake_service)
         self.assertIsInstance(result, dict)
         self.assertEqual(len(result), 1)
+
+        # A class that hasn't any constructor, uses parent
+        fake_service = Service(MockSubject3)
+        fake_service._arguments['value'] = 'Test'
+        result = self.injector._generate_arguments_dict(fake_service)
+        self.assertIsInstance(result, dict)
+        self.assertEqual(len(result), 1)
+
+        # A class that hasn't any constructor, uses object
+        fake_service = Service(MockSubject4)
+        result = self.injector._generate_arguments_dict(fake_service)
+        self.assertIsInstance(result, dict)
+        self.assertEqual(len(result), 0)
 
     def test_get_argument(self):
         fake_service = Service(MockSubject2)
