@@ -62,18 +62,18 @@ class DependencyInjector(object):
         :return: The instantiated object
         :rtype: mixed
         """
-        if identifier not in self._services:
+        if self.has_service(identifier) is False:
             raise Exception("No service has been declared with this ID")
 
         service = self._services[identifier]
 
-        if service.is_singleton is True and identifier in self._singletons:
-            return self._singletons[identifier]
+        instance = self._get_singleton(identifier, service)
+        if instance is not None:
+            return instance
 
         instance = self._get_instance(service)
 
-        if service.is_singleton is True:
-            self._singletons[identifier] = instance
+        self._set_singleton(identifier, instance, service)
 
         return instance
 
@@ -90,6 +90,38 @@ class DependencyInjector(object):
         if identifier in self._services:
             return True
         return False
+
+    def _get_singleton(self, identifier, service):
+        """
+        Return the singleton if it has been setted and
+        the service represents a singleton
+
+        :param identifier: the singleton identifier
+        :param service: The service we need the singleton for
+        :type identifier: string
+        :type service: Service
+
+        :return: The singleton instance or None
+        :rtype: mixed
+        """
+        if service.is_singleton is True and identifier in self._singletons:
+            return self._singletons[identifier]
+        return None
+
+    def _set_singleton(self, identifier, instance, service):
+        """
+        Set the instance as a singleton in the dict
+        if the service represents a singleton
+
+        :param identifier: the singleton identifier
+        :param service: The service we want to set a singleton for
+        :param instance: The singleton instance
+        :type identifier: string
+        :type service: Service
+        :type instance: mixed
+        """
+        if service.is_singleton is True :
+            self._singletons[identifier] = instance
 
     def _get_instance(self, service):
         """
@@ -119,10 +151,8 @@ class DependencyInjector(object):
         """
         arguments = dict()
 
-        #The subject extend object and han't overwritten its init
-        # It's necessary because signature can't take the __init__ from object
-        if ('__objclass__' in dir(service.subject.__init__) 
-            and service.subject.__init__.__objclass__ == object):
+        # We can't use signature on object __init__
+        if self._is_object_init(service.subject) is True:
             return arguments
 
         sig = signature(service.subject.__init__)
@@ -137,6 +167,22 @@ class DependencyInjector(object):
                 arguments[method_parameter.name] = argument
 
         return arguments
+
+    def _is_object_init(self, subject):
+        """
+        Check if the __init__ method for the object comes from
+        the default object or has been overidden
+
+        :param subject: The subject we want to check the __init__ for
+        :type subject: mixed
+
+        :return: Wether the __init__ method is the default on or not
+        :rtype: boolean
+        """
+        if ('__objclass__' in dir(subject.__init__) 
+            and subject.__init__.__objclass__ == object):
+            return True
+        return False
 
     def _get_argument(self, service, method_parameter):
         """
