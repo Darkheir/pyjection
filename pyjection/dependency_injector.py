@@ -1,6 +1,5 @@
 from inspect import signature
 from inspect import Parameter
-import inspect
 from collections import OrderedDict
 from pyjection.service import Service
 from pyjection.reference import Reference
@@ -28,10 +27,6 @@ class DependencyInjector(object):
         :rtype: Service
         """
         service = Service(service_subject)
-        if inspect.isclass(service_subject) is True:
-            service.type = "class"
-        else:
-            service.type = "instance"
         self._services[identifier] = service
         return service
 
@@ -52,10 +47,6 @@ class DependencyInjector(object):
         """
         service = Service(service_subject)
         service.is_singleton = True
-        if inspect.isclass(service_subject) is True:
-            service.type = "class"
-        else:
-            service.type = "instance"
         self._services[identifier] = service
         return service
 
@@ -110,9 +101,8 @@ class DependencyInjector(object):
         """
         if service.type == 'instance':
             return service.subject
-        else:
-            arguments = self._generate_arguments_dict(service)
-            return service.subject(**arguments)
+        arguments = self._generate_arguments_dict(service)
+        return service.subject(**arguments)
 
     def _generate_arguments_dict(self, service):
         """
@@ -128,7 +118,8 @@ class DependencyInjector(object):
         :rtype: dict
         """
         arguments = dict()
-
+        # @TODO: if the __init__ is from object we do nothing
+        # What if __init__ has only self ? 
         sig = signature(service.subject.__init__)
         method_parameters = OrderedDict(sig.parameters)
 
@@ -160,6 +151,7 @@ class DependencyInjector(object):
                 return self.get(value.name)
             return value
 
+        #If the parameter has a default value then we don't raise any exception
         if method_parameter.default == Parameter.empty:
-            raise Exception("A required argument is not set (%s)" % (parameter.name))
+            raise Exception("A required argument is not set (%s)" % (method_parameter.name))
         return None

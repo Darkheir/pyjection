@@ -1,3 +1,4 @@
+import inspect
 
 
 class Service(object):
@@ -17,20 +18,13 @@ class Service(object):
         self._subject = subject
         self._arguments = dict()
         self._is_singleton = False
-        self._type = 'class'
+        self._type = "instance"
+        if inspect.isclass(subject) is True:
+            self._type = "class"            
 
     @property
     def type(self):
         return self._type
-
-    @type.setter
-    def type(self, value):
-        """
-        Set the service type. For now 2 types are supported:
-            * 'class' : A class that will be instantiated
-            * 'instance' an instance that will be returned
-        """
-        self._type = value
     
 
     @property
