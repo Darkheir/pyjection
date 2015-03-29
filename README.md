@@ -1,5 +1,11 @@
 # pyjection
 
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE)
+[![Build Status](https://img.shields.io/travis/Darkheir/pyjection/master.svg?style=flat-square)](https://travis-ci.org/Darkheir/pyjection/)
+[![Code Coverage](https://scrutinizer-ci.com/g/Darkheir/pyjection/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Darkheir/pyjection/?branch=master)
+[![Code Quality](https://scrutinizer-ci.com/g/Darkheir/pyjection/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Darkheir/pyjection/?branch=master)
+
+
 Pyjection is a lightweight python dependency injection library
 
 
