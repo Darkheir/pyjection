@@ -2,8 +2,7 @@
 
 class Reference(object):
     """
-    Base class used when a service needs to register a dependency
-    to another service
+    Base class used when a service needs to register a dependency to another service
     """
     
     def __init__(self, name):

@@ -20,9 +20,10 @@ class DependencyInjector(object):
             * An already instantiated instance that will be returned
 
         :param identifier: The identifier used to later retrieve a service instance
-        :param service_subject: The class or instance
         :type identifier: string
+        :param service_subject: The class or instance
         :type service_subject: mixed
+
         :return: Return the newly created service entry
         :rtype: Service
         """
@@ -39,9 +40,10 @@ class DependencyInjector(object):
             * An already instantiated instance that will be returned
 
         :param identifier: The identifier used to later retrieve a service singleton
-        :param service_subject: The class or instance
         :type identifier: string
+        :param service_subject: The class or instance
         :type service_subject: mixed
+
         :return: Return the newly created dependency entry
         :rtype: Service
         """
@@ -66,13 +68,11 @@ class DependencyInjector(object):
             raise Exception("No service has been declared with this ID")
 
         service = self._services[identifier]
-
         instance = self._get_singleton(identifier, service)
         if instance is not None:
             return instance
 
         instance = self._get_instance(service)
-
         self._set_singleton(identifier, instance, service)
 
         return instance
@@ -84,7 +84,7 @@ class DependencyInjector(object):
 
         :param identifier: Name of the service
         :type identifier: string
-        :return: Wether or not the service exists
+        :return: Whether or not the service exists
         :rtype: boolean
         """
         if identifier in self._services:
@@ -120,7 +120,7 @@ class DependencyInjector(object):
         :type service: Service
         :type instance: mixed
         """
-        if service.is_singleton is True :
+        if service.is_singleton is True:
             self._singletons[identifier] = instance
 
     def _get_instance(self, service):
@@ -158,7 +158,7 @@ class DependencyInjector(object):
         sig = signature(service.subject.__init__)
         method_parameters = OrderedDict(sig.parameters)
 
-        #Pop the first param since it's the self class instance
+        # Pop the first param since it's the self class instance
         method_parameters.popitem(False)
 
         for method_parameter in method_parameters.values():
@@ -171,16 +171,15 @@ class DependencyInjector(object):
     def _is_object_init(self, subject):
         """
         Check if the __init__ method for the object comes from
-        the default object or has been overidden
+        the default object or has been overridden
 
         :param subject: The subject we want to check the __init__ for
         :type subject: mixed
 
-        :return: Wether the __init__ method is the default on or not
+        :return: Whether the __init__ method is the default on or not
         :rtype: boolean
         """
-        if ('__objclass__' in dir(subject.__init__) 
-            and subject.__init__.__objclass__ == object):
+        if '__objclass__' in dir(subject.__init__) and subject.__init__.__objclass__ == object:
             return True
         return False
 
@@ -197,12 +196,12 @@ class DependencyInjector(object):
         """
         if method_parameter.name in service.arguments:
             value = service.arguments[method_parameter.name]
-            #The value references an other dependency service
+            # The value references an other dependency service
             if isinstance(value, Reference):
                 return self.get(value.name)
             return value
 
-        #If the parameter has a default value then we don't raise any exception
+        # If the parameter has a default value then we don't raise any exception
         if method_parameter.default == Parameter.empty:
-            raise Exception("A required argument is not set (%s)" % (method_parameter.name))
+            raise Exception("A required argument is not set (%s)" % method_parameter.name)
         return None

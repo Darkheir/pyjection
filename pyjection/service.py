@@ -3,8 +3,7 @@ import inspect
 
 class Service(object):
     """
-    A service represents a class that the dependency injector
-    can instantiate when asked.
+    A service represents a class that the dependency injector can instantiate when asked.
 
     After the service has been declared, its arguments might be specified
     using the methods add_argument or add_arguments.
@@ -25,22 +24,20 @@ class Service(object):
     @property
     def type(self):
         return self._type
-    
 
     @property
     def is_singleton(self):
         """
-        Get wether this service is a Singleton or not
+        Get whether this service is a Singleton or not
         """
         return self._is_singleton
 
     @is_singleton.setter
     def is_singleton(self, value):
         """
-        Set wether this service is a Singleton or not
+        Set whether this service is a Singleton or not
         """
         self._is_singleton = value
-    
 
     @property
     def subject(self):
@@ -60,7 +57,6 @@ class Service(object):
         :rtype: dict
         """
         return self._arguments
-    
 
     def add_argument(self, name, value):
         """
@@ -84,4 +80,3 @@ class Service(object):
         """
         self._arguments.update(kwargs)
         return self
-
