@@ -1,11 +1,10 @@
-import unittest
+from unittest import TestCase
 from pyjection.reference import Reference
 
 
-class TestReference(unittest.TestCase):
+class TestReference(TestCase):
 
     def test_name(self):
         reference = Reference('test_name')
-        self.assertIsInstance(reference, Reference)
         self.assertEqual(reference.name, 'test_name')
 
