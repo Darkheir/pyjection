@@ -201,7 +201,11 @@ class DependencyInjector(object):
                 return self.get(value.name)
             return value
 
+        # If the parameter is *args or **kwargs then we don't raise any exception
+        if method_parameter.kind == Parameter.VAR_POSITIONAL or \
+                method_parameter.kind == Parameter.VAR_KEYWORD:
+            return None
         # If the parameter has a default value then we don't raise any exception
-        if method_parameter.default == Parameter.empty:
-            raise Exception("A required argument is not set (%s)" % method_parameter.name)
-        return None
+        if method_parameter.default is not Parameter.empty:
+            return None
+        raise Exception("A required argument is not set (%s)" % method_parameter.name)
