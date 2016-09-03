@@ -210,12 +210,17 @@ class DependencyInjector(object):
         :return: The argument value
         :rtype: mixed
         """
+        # First check if we specified this argument for the service
         if method_parameter.name in service.arguments:
             value = service.arguments[method_parameter.name]
             # The value references an other dependency service
             if isinstance(value, Reference):
                 return self.get(value.name)
             return value
+
+        # Then check if another service has this name
+        if self.has_service(method_parameter.name):
+            return self.get(method_parameter.name)
 
         # If the parameter is *args or **kwargs then we don't raise any exception
         if method_parameter.kind == Parameter.VAR_POSITIONAL or \
@@ -224,4 +229,5 @@ class DependencyInjector(object):
         # If the parameter has a default value then we don't raise any exception
         if method_parameter.default is not Parameter.empty:
             return None
+
         raise Exception("A required argument is not set (%s)" % method_parameter.name)
