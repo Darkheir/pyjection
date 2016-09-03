@@ -1,8 +1,10 @@
 from inspect import signature
 from inspect import Parameter
 from collections import OrderedDict
+
 from pyjection.service import Service
 from pyjection.reference import Reference
+from pyjection.helper import get_service_subject_identifier
 
 
 class DependencyInjector(object):
@@ -11,13 +13,15 @@ class DependencyInjector(object):
         self._services = dict()
         self._singletons = dict()
 
-    def register(self, service_subject, identifier):
+    def register(self, service_subject, identifier=None):
         """
         Register a new service in the dependency injector
 
         This service can be :
             * A class that will be instantiated when called
             * An already instantiated instance that will be returned
+
+        If no identifier is passed, it will be the class name in snake_case
 
         :param service_subject: The class or instance
         :type service_subject: mixed
@@ -27,17 +31,21 @@ class DependencyInjector(object):
         :return: Return the newly created service entry
         :rtype: Service
         """
+        if identifier is None:
+            identifier = get_service_subject_identifier(service_subject)
         service = Service(service_subject)
         self._services[identifier] = service
         return service
 
-    def register_singleton(self, service_subject, identifier):
+    def register_singleton(self, service_subject, identifier=None):
         """
         Register a new singleton service in in the dependency injector
 
         This service can be :
             * A class that will be instantiated when called
             * An already instantiated instance that will be returned
+
+        If no identifier is passed, it will be the class name in snake_case
 
         :param service_subject: The class or instance
         :type service_subject: mixed
@@ -47,6 +55,8 @@ class DependencyInjector(object):
         :return: Return the newly created dependency entry
         :rtype: Service
         """
+        if identifier is None:
+            identifier = get_service_subject_identifier(service_subject)
         service = Service(service_subject)
         service.is_singleton = True
         self._services[identifier] = service
@@ -59,11 +69,14 @@ class DependencyInjector(object):
         If the service has been self has a singleton the same service object
         will be return each time this service is asked
 
-        :param identifier: The identifier used to later retrieve a class singleton
-        :type identifier: string
+        :param identifier: The identifier or the class to retrieve
+        :type identifier: mixed
         :return: The instantiated object
         :rtype: mixed
         """
+        if isinstance(identifier, str) is False:
+            identifier = get_service_subject_identifier(identifier)
+
         if self.has_service(identifier) is False:
             raise Exception("No service has been declared with this ID")
 
@@ -82,11 +95,14 @@ class DependencyInjector(object):
         Check if the service matching the given identifier
         has already been declared
 
-        :param identifier: Name of the service
-        :type identifier: string
+        :param identifier: Name of the service or the class
+        :type identifier: mixed
         :return: Whether or not the service exists
         :rtype: boolean
         """
+        if isinstance(identifier, str) is False:
+            identifier = get_service_subject_identifier(identifier)
+
         if identifier in self._services:
             return True
         return False
