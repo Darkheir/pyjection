@@ -10,15 +10,15 @@ class TestDependencyInjector(TestCase):
         self.injector = DependencyInjector()
 
     def test_register(self):
-        result = self.injector.register('identifier', Mock)
+        result = self.injector.register(Mock, 'identifier')
         self.assertIsInstance(result, Service)
 
     def test_register_singleton_returns_service(self):
-        result = self.injector.register_singleton('identifier', Mock)
+        result = self.injector.register_singleton(Mock, 'identifier')
         self.assertIsInstance(result, Service)
 
     def test_register_singleton(self):
-        result = self.injector.register_singleton('identifier', Mock)
+        result = self.injector.register_singleton(Mock, 'identifier')
         self.assertTrue(result.is_singleton)
 
     def test_has_service_returns_false(self):

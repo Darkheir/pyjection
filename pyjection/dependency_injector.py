@@ -11,7 +11,7 @@ class DependencyInjector(object):
         self._services = dict()
         self._singletons = dict()
 
-    def register(self, identifier, service_subject):
+    def register(self, service_subject, identifier):
         """
         Register a new service in the dependency injector
 
@@ -19,10 +19,10 @@ class DependencyInjector(object):
             * A class that will be instantiated when called
             * An already instantiated instance that will be returned
 
-        :param identifier: The identifier used to later retrieve a service instance
-        :type identifier: string
         :param service_subject: The class or instance
         :type service_subject: mixed
+        :param identifier: The identifier used to later retrieve a service instance
+        :type identifier: string
 
         :return: Return the newly created service entry
         :rtype: Service
@@ -31,7 +31,7 @@ class DependencyInjector(object):
         self._services[identifier] = service
         return service
 
-    def register_singleton(self, identifier, service_subject):
+    def register_singleton(self, service_subject, identifier):
         """
         Register a new singleton service in in the dependency injector
 
@@ -39,10 +39,10 @@ class DependencyInjector(object):
             * A class that will be instantiated when called
             * An already instantiated instance that will be returned
 
-        :param identifier: The identifier used to later retrieve a service singleton
-        :type identifier: string
         :param service_subject: The class or instance
         :type service_subject: mixed
+        :param identifier: The identifier used to later retrieve a service singleton
+        :type identifier: string
 
         :return: Return the newly created dependency entry
         :rtype: Service
