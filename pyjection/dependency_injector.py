@@ -1,3 +1,5 @@
+import logging
+
 from inspect import signature
 from inspect import Parameter
 from collections import OrderedDict
@@ -10,6 +12,7 @@ from pyjection.helper import get_service_subject_identifier
 class DependencyInjector(object):
 
     def __init__(self):
+        self._logger = logging.getLogger(__name__)
         self._services = dict()
         self._singletons = dict()
 
@@ -35,6 +38,11 @@ class DependencyInjector(object):
             identifier = get_service_subject_identifier(service_subject)
         service = Service(service_subject)
         self._services[identifier] = service
+        self._logger.debug(
+            "Class %s registered with identifier %s",
+            str(service_subject),
+            identifier
+        )
         return service
 
     def register_singleton(self, service_subject, identifier=None):
@@ -60,6 +68,11 @@ class DependencyInjector(object):
         service = Service(service_subject)
         service.is_singleton = True
         self._services[identifier] = service
+        self._logger.debug(
+            "Class %s registered as singleton with identifier %s",
+            str(service_subject),
+            identifier
+        )
         return service
 
     def get(self, identifier):
@@ -78,16 +91,18 @@ class DependencyInjector(object):
             identifier = get_service_subject_identifier(identifier)
 
         if self.has_service(identifier) is False:
+            self._logger.error("No service has been declared with ID %s", identifier)
             raise Exception("No service has been declared with this ID")
 
         service = self._services[identifier]
         instance = self._get_singleton(identifier, service)
         if instance is not None:
+            self._logger.debug("Return singleton with ID %s", identifier)
             return instance
 
         instance = self._get_instance(service)
         self._set_singleton(identifier, instance, service)
-
+        self._logger.debug("Return instance with ID %s", identifier)
         return instance
 
     def get_uninstantiated(self, identifier):
@@ -95,6 +110,7 @@ class DependencyInjector(object):
             identifier = get_service_subject_identifier(identifier)
 
         if self.has_service(identifier) is False:
+            self._logger.error("No service has been declared with ID %s", identifier)
             raise Exception("No service has been declared with this ID")
 
         service = self._services[identifier]
@@ -243,4 +259,5 @@ class DependencyInjector(object):
         if method_parameter.default is not Parameter.empty:
             return None
 
+        self._logger.error("A required argument is not set: %s", method_parameter.name)
         raise Exception("A required argument is not set (%s)" % method_parameter.name)
