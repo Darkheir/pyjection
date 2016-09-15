@@ -90,6 +90,16 @@ class DependencyInjector(object):
 
         return instance
 
+    def get_uninstantiated(self, identifier):
+        if isinstance(identifier, str) is False:
+            identifier = get_service_subject_identifier(identifier)
+
+        if self.has_service(identifier) is False:
+            raise Exception("No service has been declared with this ID")
+
+        service = self._services[identifier]
+        return service.subject
+
     def has_service(self, identifier):
         """
         Check if the service matching the given identifier
@@ -215,7 +225,10 @@ class DependencyInjector(object):
             value = service.arguments[method_parameter.name]
             # The value references an other dependency service
             if isinstance(value, Reference):
-                return self.get(value.name)
+                if value.return_class == True:
+                    return self.get_uninstantiated(value.name)
+                else:
+                    return self.get(value.name)
             return value
 
         # Then check if another service has this name
