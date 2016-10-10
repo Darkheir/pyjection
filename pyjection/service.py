@@ -70,6 +70,8 @@ class Service(object):
         :param value: Value to assign to the argument
         :type name: string
         :type value: mixed
+        :return: The service
+        :rtype: Service
         """
         self._arguments[name] = value
         return self
