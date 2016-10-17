@@ -5,172 +5,158 @@ pyjection
 
 Pyjection is a lightweight python dependency injection library
 
-Examples
---------
 
-Basic example
-~~~~~~~~~~~~~
+Basic dependency injection
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: python
-
-    # Import the required dependency
-    from pyjection.dependency_injector import DependencyInjector
-
-    #For the sake of this example we create a dummy class
-    class A(object):
-
-        def __init__(self, parameter):
-            print("A has been instantiated with param: %s" % (parameter))
-
-
-    # Instantiate the dependency injector
-    container = DependencyInjector()
-
-    # We register the class A in the dependency injector
-    service = container.register("a_class", A)
-    # And we specify its parameter value
-    service.add_argument("parameter", "my_value")
-
-    #We could have chained the argument add to the registration:
-    container.register("a_class", A).add_argument("parameter", "my_value")
-
-    # Now we ask the dependency injector to generate an instance of A
-    # It will print "A has been instantiated with param: my_value"
-    a_instance = container.get("a_class")
-    #If we call again container.get("a_class") a new instance will be returned
-
-Singleton example
-~~~~~~~~~~~~~~~~~
-
-The dependency injector lets us register a singleton. The same instance
-will the be returned when asked
+The most import class is ``DependencyInjector`` which lets us register classes and retrieve instances.
 
 .. code:: python
 
-    # Import the required dependency
     from pyjection.dependency_injector import DependencyInjector
 
-    #For the sake of this example we create a dummy class
-    class A(object):
+    class OuterClass(object):
 
-        def __init__(self, parameter):
-            print("A has been instantiated with param: %s" % (parameter))
+        def __init__(self, inner_class):
+            self.inner_class = inner_class
 
+    class InnerClass(object):
 
-    # Instantiate the dependency injector
+        def __init__(self):
+            self.foo = "bar"
+
     container = DependencyInjector()
+    container.register(InnerClass)
+    container.register(OuterClass)
 
-    # We register the class A in the dependency injector
-    service = container.register_singleton("a_singleton", A)
-    # And we specify its parameter value
-    service.add_argument("parameter", "my_value")
+    outer = container.get("outer_class")
+    print(outer.inner_class.foo) # Will print "bar"
 
-    # Now we ask the dependency injector to get an instance of A
-    # It will print "A has been instantiated with param: my_value"
-    a1_instance = container.get("a_singleton")
-    # We ask again an instance, nothing will be print since the same
-    # instance is returned
-    a2_instance = container.get("a_singleton")
+Class bindings
+~~~~~~~~~~~~~~
 
-Instance example
-~~~~~~~~~~~~~~~~
+Implicit class bindings
+-----------------------
 
-We can also use the dependency injector to retrieve an already
-instantiated instance
+When no id is specified in the ``register`` method Pyjection creates implicit bindings for classes.
+The implicit bindings assume your code follows PEP8 conventions: your classes are named in ``CamelCase``,
+and your args are named in ``lower_with_underscores``.  Pinject transforms
+class names to injectable arg names by lowercasing words and connecting them
+with underscores.
+
++-------------+-------------+
+| Class name  | Arg name    |
++=============+=============+
+| ``Foo``     | ``foo``     |
++-------------+-------------+
+| ``FooBar``  | ``foo_bar`` |
++-------------+-------------+
+
+Explicit class bindings
+-----------------------
+
+It is also possible to manually set the id of a class when during its registration by specifying it as a second arguments.
 
 .. code:: python
 
-    # Import the required dependency
+    container.register(FooClass, "inner_class")
+
+With the example above, ``FooClass`` will later be injected when to args named ``inner_class``
+
+Instance retrieval
+~~~~~~~~~~~~~~~~~~
+
+To retrieve an instance of a class from the dependency injector 2 options are available in the ``get`` method:
+
+* Specify the ``lower_with_underscores`` name of the class as a string
+* Give the class as parameter
+
+.. code:: python
+
     from pyjection.dependency_injector import DependencyInjector
 
-    #For the sake of this example we create a dummy class
-    class A(object):
+    class FooClass(object):
+        pass
 
-        def __init__(self, parameter):
-            print("A has been instantiated with param: %s" % (parameter))
-
-    a_instance = A('my_value')
-
-    # Instantiate the dependency injector
     container = DependencyInjector()
-    # We register the already instantiated object
-    service = container.register("a_instance", a)
+    container.register(FooClass)
 
-    # Now we ask the dependency injector to get the instance
-    a1_instance = container.get("a_instance")
+    container.get("foo_class")
+    # Same as
+    container.get(FooClass)
 
-    # Will print True
-    print(a1_instance == a_instance)
+Singleton injection
+~~~~~~~~~~~~~~~~~~~
 
-Reference example
-~~~~~~~~~~~~~~~~~
+The dependency injector lets us register a singleton. 
+To register a singleton the method register_singleton may be used.
+It takes the same arguments as register.
 
-A service argument can reference another dependency injector service
+.. code:: python
+
+    container.register_singleton(SingletonClass)
+    # Or we could specify an id
+    container.register_singleton(SingletonClass, "other_id")
+
+    class_1 = register.get("other_id")
+    class_2 = register.get("other_id")
+    print(class_1 is class_2) # True
+
+
+Explicit argument specification
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Simple argument specification
+-----------------------------
+
+Sometimes the argument we need to inject is not an instance of a class.
+The ``register`` and ``register_singleton`` methods return a service object that lets us specify what we want to bind to a given argument by using the ``add_argument`` method.
+
+.. code:: python
+
+    from pyjection.dependency_injector import DependencyInjector
+
+    class FooClass(object):
+
+        def __init__(self, foo):
+            self.foo = foo
+
+    container = DependencyInjector()
+    service = container.register(FooClass)
+    service.add_argument("foo", "bar")
+
+    foo_class = container.get("foo_class")
+    print(foo_class.foo) # Will print bar
+
+
+Reference argument specification
+--------------------------------
+
+A service argument can also reference another dependency injector service.
+It is useful when we want to inject a class not matching the argument name.
 
 .. code:: python
 
     from pyjection.dependency_injector import DependencyInjector
     from pyjection.reference import Reference
 
-    #For the sake of this example we create 2 dummy classes
-    class A(object):
+    class OuterClass(object):
 
-        def __init__(self, parameter):
-            print("A has been instantiated with param: %s" % (parameter))
+        def __init__(self, inner_class):
+            self.inner_class = inner_class
 
-    class B(object):
+    class FooClass(object):
 
-        def __init__(self, a_parameter):
-            if isinstance(a_parameter, A):
-                print('B has been instantiated with an instance of A')
+        def __init__(self):
+            self.foo = "bar"
 
-
-    # Instantiate the dependency injector
     container = DependencyInjector()
+    container.register(FooClass)
+    container.register(OuterClass).add_argument("inner_class", Reference('foo_class'))
 
-    # We register the class A in the dependency injector
-    container.register("a_instance", A).add_argument("parameter", "my_value")
-
-    # We register B and specify that "a_parameter" will reference the service "a_instance"
-    container.register("b_instance", B).add_argument("a_parameter", Reference('a_instance'))
-
-
-    # This will instantiate an instance of A and pass it has parameter to B
-    b_instance = container.get("b_instance")
-
-Using this approach a lot can be done automatically.
-
-For example we could do the following: when asking for a D class it will
-instantiates a C class needed as parameter that itself takes 2 classes A
-and B as arguments.
-
-Available attributes and methods
---------------------------------
-
-In the DependencyInjector class:
-
--  register(identifier, subject) : Register a new service in the
-   dependency injector for the given subject. This service can be
-
-   -  A class that will be instantiated when asked
-   -  An already instantiated instance that will be returned as it is
-
--  register\_singleton(identifier, subject) : Register a new service as
-   a singleton. So the same instance will be returned each time the
-   service is asked
-
--  has\_service(identifier) : Check if the dependency injector already
-   has this service declared
-
--  get(identifier) : Return an instance of the service subject.
-
-In the service class:
-
--  is\_singleton : Wether the declared service is a singleton
--  type: The service type. It can be 'class' or 'instance'
--  add\_argument(name, value): Add an argument to the service. An
-   argument value can be a Reference to another service
--  add\_arguments(\*\*kwargs): Add severals arguments to the service
+    instance = container.get(OuterClass)
+    print(instance.inner_class.foo) # Will print bar
+    
 
 .. |Software License| image:: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
    :target: LICENSE
