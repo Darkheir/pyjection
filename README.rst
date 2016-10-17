@@ -61,7 +61,7 @@ It is also possible to manually set the id of a class when during its registrati
 
     container.register(FooClass, "inner_class")
 
-With the example above, ``FooClass`` will later be injected when to args named ``inner_class``
+With the example above, ``FooClass`` will later be injected to arguments named ``inner_class``
 
 Instance retrieval
 ~~~~~~~~~~~~~~~~~~
