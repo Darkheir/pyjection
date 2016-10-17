@@ -94,12 +94,18 @@ It takes the same arguments as register.
 
 .. code:: python
 
+    from pyjection.dependency_injector import DependencyInjector
+
+    class SingletonClass(object):
+        pass
+
+    container = DependencyInjector()
     container.register_singleton(SingletonClass)
     # Or we could specify an id
     container.register_singleton(SingletonClass, "other_id")
 
-    class_1 = register.get("other_id")
-    class_2 = register.get("other_id")
+    class_1 = container.get("other_id")
+    class_2 = container.get("other_id")
     print(class_1 is class_2) # True
 
 
