@@ -9,7 +9,7 @@ Pyjection is a lightweight python dependency injection library
 Basic dependency injection
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The most import class is ``DependencyInjector`` which lets us register classes and retrieve instances.
+The most important class is ``DependencyInjector`` which lets us register classes and retrieve instances.
 
 .. code:: python
 
@@ -40,7 +40,7 @@ Implicit class bindings
 
 When no id is specified in the ``register`` method Pyjection creates implicit bindings for classes.
 The implicit bindings assume your code follows PEP8 conventions: your classes are named in ``CamelCase``,
-and your args are named in ``lower_with_underscores``.  Pinject transforms
+and your args are named in ``lower_with_underscores``.  Pyjection transforms
 class names to injectable arg names by lowercasing words and connecting them
 with underscores.
 
