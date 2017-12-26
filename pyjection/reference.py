@@ -8,8 +8,8 @@ class Reference(object):
 
     def __init__(self, name, return_class=False):
         """
-        :param name: Name of the reference
-        :type name: str
+        :param name: Name of the reference or a class
+        :type name: mixed
         :param return_class: Whether the reference is on an instance of the other service or a class
         :type return_class: bool
         """
