@@ -4,17 +4,28 @@ from inspect import signature
 from inspect import Parameter
 from collections import OrderedDict
 
+from pyjection.resolvers import ServiceResolver, NameResolver
 from pyjection.service import Service
-from pyjection.reference import Reference
 from pyjection.helper import get_service_subject_identifier
 
 
 class DependencyInjector(object):
+    """
+    Main class of the package. 
+    
+    This is the interface that should be used to get objects from the dependency injector.
+    """
 
-    def __init__(self):
+    def __init__(self, resolvers=None):
         self._logger = logging.getLogger(__name__)
         self._services = dict()
         self._singletons = dict()
+        self._resolvers = resolvers
+        if not resolvers:
+            self._resolvers = [
+                ServiceResolver(self),
+                NameResolver(self)
+            ]
 
     def register(self, service_subject, identifier=None):
         """
@@ -193,8 +204,8 @@ class DependencyInjector(object):
         """
         arguments = dict()
 
-        # We can't use signature on object __init__
-        if self._is_object_init(service.subject) is True:
+        # We can't use signature on class object __init__
+        if self._is_object_init(service.subject):
             return arguments
 
         sig = signature(service.subject.__init__)
@@ -210,10 +221,11 @@ class DependencyInjector(object):
 
         return arguments
 
-    def _is_object_init(self, subject):
+    @staticmethod
+    def _is_object_init(subject):
         """
         Check if the __init__ method for the object comes from
-        the default object or has been overridden
+        the default object class or has been overridden
 
         :param subject: The subject we want to check the __init__ for
         :type subject: mixed
@@ -236,20 +248,10 @@ class DependencyInjector(object):
         :return: The argument value
         :rtype: mixed
         """
-        # First check if we specified this argument for the service
-        if method_parameter.name in service.arguments:
-            value = service.arguments[method_parameter.name]
-            # The value references an other dependency service
-            if isinstance(value, Reference):
-                if value.return_class == True:
-                    return self.get_uninstantiated(value.name)
-                else:
-                    return self.get(value.name)
-            return value
-
-        # Then check if another service has this name
-        if self.has_service(method_parameter.name):
-            return self.get(method_parameter.name)
+        for resolver in self._resolvers:
+            resolved = resolver.resolve(method_parameter, service)
+            if resolved:
+                return resolved
 
         # If the parameter is *args or **kwargs then we don't raise any exception
         if method_parameter.kind == Parameter.VAR_POSITIONAL or \
