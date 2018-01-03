@@ -11,8 +11,8 @@ from pyjection.helper import get_service_subject_identifier
 
 class DependencyInjector(object):
     """
-    Main class of the package. 
-    
+    Main class of the package.
+
     This is the interface that should be used to get objects from the dependency injector.
     """
 

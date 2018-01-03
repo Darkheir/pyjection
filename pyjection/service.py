@@ -19,7 +19,7 @@ class Service(object):
         self._is_singleton = False
         self._type = "instance"
         if inspect.isclass(subject) is True:
-            self._type = "class"            
+            self._type = "class"
 
     @property
     def type(self):
