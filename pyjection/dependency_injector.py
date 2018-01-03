@@ -101,9 +101,7 @@ class DependencyInjector(object):
         if isinstance(identifier, str) is False:
             identifier = get_service_subject_identifier(identifier)
 
-        if self.has_service(identifier) is False:
-            self._logger.error("No service has been declared with ID %s", identifier)
-            raise Exception("No service has been declared with this ID")
+        self._validate_service_name(identifier)
 
         service = self._services[identifier]
         instance = self._get_singleton(identifier, service)
@@ -120,9 +118,7 @@ class DependencyInjector(object):
         if isinstance(identifier, str) is False:
             identifier = get_service_subject_identifier(identifier)
 
-        if self.has_service(identifier) is False:
-            self._logger.error("No service has been declared with ID %s", identifier)
-            raise Exception("No service has been declared with this ID")
+        self._validate_service_name(identifier)
 
         service = self._services[identifier]
         return service.subject
@@ -143,6 +139,11 @@ class DependencyInjector(object):
         if identifier in self._services:
             return True
         return False
+
+    def _validate_service_name(self, identifier):
+        if not self.has_service(identifier):
+            self._logger.error("No service has been declared with ID %s", identifier)
+            raise Exception("No service has been declared with this ID")
 
     def _get_singleton(self, identifier, service):
         """
