@@ -98,14 +98,13 @@ class DependencyInjector(object):
         :return: The instantiated object
         :rtype: mixed
         """
-        if isinstance(identifier, str) is False:
-            identifier = get_service_subject_identifier(identifier)
+        identifier = self._get_string_identifier(identifier)
 
         self._validate_service_name(identifier)
 
         service = self._services[identifier]
         instance = self._get_singleton(identifier, service)
-        if instance is not None:
+        if instance:
             self._logger.debug("Return singleton with ID %s", identifier)
             return instance
 
@@ -115,11 +114,8 @@ class DependencyInjector(object):
         return instance
 
     def get_uninstantiated(self, identifier):
-        if isinstance(identifier, str) is False:
-            identifier = get_service_subject_identifier(identifier)
-
+        identifier = self._get_string_identifier(identifier)
         self._validate_service_name(identifier)
-
         service = self._services[identifier]
         return service.subject
 
@@ -144,6 +140,11 @@ class DependencyInjector(object):
         if not self.has_service(identifier):
             self._logger.error("No service has been declared with ID %s", identifier)
             raise Exception("No service has been declared with this ID")
+
+    def _get_string_identifier(self, identifier):
+        if isinstance(identifier, str):
+            return identifier
+        return get_service_subject_identifier(identifier)
 
     def _get_singleton(self, identifier, service):
         """

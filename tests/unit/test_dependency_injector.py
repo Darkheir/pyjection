@@ -65,10 +65,17 @@ class TestDependencyInjector(TestCase):
         self.injector._services['fake_service'] = fake_service
 
     def test_get_class(self):
-        fake_service = Service(Mock)
+        fake_service = Service(Mock())
         self.injector._services['fake_service'] = fake_service
         subject1 = self.injector.get('fake_service')
         self.assertIsInstance(subject1, Mock)
+
+    def test_get_uninstantiated(self):
+        mock = Mock()
+        fake_service = Service(mock)
+        self.injector._services['fake_service'] = fake_service
+        subject1 = self.injector.get_uninstantiated('fake_service')
+        self.assertIs(subject1, mock)
 
     def test_get_class_identifier(self):
         fake_service = Service(Mock)
