@@ -257,7 +257,7 @@ class DependencyInjector(object):
         # If the parameter is *args or **kwargs or has a default value
         # then we don't raise any exception
         if (method_parameter.kind in [Parameter.VAR_POSITIONAL, Parameter.VAR_KEYWORD] or
-                  method_parameter.default is not Parameter.empty):
+                method_parameter.default is not Parameter.empty):
             return None
 
         error = "A required argument is not set: {0}".format(method_parameter.name)
