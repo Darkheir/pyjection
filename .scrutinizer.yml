@@ -19,3 +19,9 @@ build:
                 coverage:
                     file: '.coverage'
                     format: 'py-cc'
+    nodes:
+        analysis:
+            project_setup:
+                override: true
+            tests:
+                override: [py-scrutinizer-run]

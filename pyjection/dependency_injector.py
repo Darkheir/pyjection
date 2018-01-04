@@ -254,7 +254,7 @@ class DependencyInjector(object):
             if resolved:
                 return resolved
 
-        # If the parameter is *args or **kwargs or if the parameter has a default value
+        # If the parameter is *args or **kwargs or has a default value
         # then we don't raise any exception
         if (method_parameter.kind in [Parameter.VAR_POSITIONAL, Parameter.VAR_KEYWORD]
                 or method_parameter.default is not Parameter.empty):
