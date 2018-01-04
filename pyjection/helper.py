@@ -1,6 +1,7 @@
 import re
 import inspect
 
+
 def get_service_subject_identifier(service_subject):
     """Get the snake_case identifier of the service_subject
 
@@ -14,6 +15,7 @@ def get_service_subject_identifier(service_subject):
     else:
         subject_name = service_subject.__class__.__name__
     return convert_camel_to_snake(subject_name)
+
 
 def convert_camel_to_snake(value):
     """Convert string from CamelCase to snake_case
