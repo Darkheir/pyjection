@@ -15,7 +15,7 @@ class BaseResolver(object):
         self._injector = injector
 
     def resolve(self, method_parameter, service):
-        pass
+        raise NotImplementedError('This method must be implemented')
 
 
 class ServiceResolver(BaseResolver):
