@@ -1,5 +1,6 @@
 from unittest import TestCase
 from pyjection.dependency_injector import DependencyInjector
+from pyjection.errors import ServiceNotFoundError, ArgumentNotFoundError
 
 
 class OuterClass(object):
@@ -15,9 +16,9 @@ class TestError(TestCase):
         self._container.register(OuterClass)
 
     def test_unknown_parameter(self):
-        with self.assertRaises(Exception):
+        with self.assertRaises(ArgumentNotFoundError):
             self._container.get("outer_class")
 
     def test_unknown_service(self):
-        with self.assertRaises(Exception):
+        with self.assertRaises(ServiceNotFoundError):
             self._container.get("unknown_service")

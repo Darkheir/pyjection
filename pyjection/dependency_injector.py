@@ -1,12 +1,12 @@
 import logging
-
-from inspect import signature
-from inspect import Parameter
 from collections import OrderedDict
+from inspect import Parameter
+from inspect import signature
 
+from pyjection.errors import ServiceNotFoundError, ArgumentNotFoundError
+from pyjection.helper import get_service_subject_identifier
 from pyjection.resolvers import ServiceResolver, NameResolver
 from pyjection.service import Service
-from pyjection.helper import get_service_subject_identifier
 
 
 class DependencyInjector(object):
@@ -24,7 +24,7 @@ class DependencyInjector(object):
         if not resolvers:
             self._resolvers = [
                 ServiceResolver(self),
-                NameResolver(self)
+                NameResolver(self),
             ]
 
     def register(self, service_subject, identifier=None):
@@ -139,7 +139,7 @@ class DependencyInjector(object):
     def _validate_service_name(self, identifier):
         if not self.has_service(identifier):
             self._logger.error("No service has been declared with ID %s", identifier)
-            raise Exception("No service has been declared with this ID")
+            raise ServiceNotFoundError("No service has been declared with this ID")
 
     def _get_string_identifier(self, identifier):
         if isinstance(identifier, str):
@@ -263,4 +263,4 @@ class DependencyInjector(object):
 
         error = "A required argument is not set: {0}".format(method_parameter.name)
         self._logger.error(error)
-        raise Exception(error)
+        raise ArgumentNotFoundError(error)
