@@ -23,8 +23,8 @@ class DependencyInjector(object):
         self._resolvers = resolvers
         if not resolvers:
             self._resolvers = [
-                ServiceResolver(self),
-                NameResolver(self),
+                ServiceResolver(),
+                NameResolver(),
             ]
 
     def register(self, service_subject, identifier=None):
@@ -251,7 +251,7 @@ class DependencyInjector(object):
         :rtype: mixed
         """
         for resolver in self._resolvers:
-            resolved = resolver.resolve(method_parameter, service)
+            resolved = resolver.resolve(method_parameter, service, self)
             if resolved:
                 return resolved
 
