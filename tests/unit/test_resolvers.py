@@ -1,9 +1,10 @@
+from typing import List
 from unittest import TestCase
 from unittest.mock import Mock, create_autospec
 from inspect import signature
 from collections import OrderedDict
 
-from pyjection.resolvers import NameResolver, ServiceResolver
+from pyjection.resolvers import NameResolver, ServiceResolver, TypingResolver
 from pyjection.dependency_injector import DependencyInjector
 from pyjection.service import Service
 from pyjection.reference import Reference
@@ -22,7 +23,6 @@ class TestServiceResolver(TestCase):
         sig = signature(test_method)
         method_parameters = OrderedDict(sig.parameters)
         _, self._parameter = method_parameters.popitem()
-
 
     def test_return_none(self):
         self._service.arguments = dict()
@@ -84,4 +84,55 @@ class TestNameResolver(TestCase):
         return_value = Mock
         self._injector.get = Mock(return_value=return_value)
         result = self._resolver.resolve(self._parameter, None, self._injector)
+        self.assertEqual(result, return_value)
+
+
+class TestTypingResolver(TestCase):
+
+    def setUp(self):
+        self._injector = create_autospec(DependencyInjector)
+        self._resolver = TypingResolver()
+
+    @staticmethod
+    def get_parameter(method):
+        sig = signature(method)
+        method_parameters = OrderedDict(sig.parameters)
+        return method_parameters.popitem()[1]
+
+    def test_return_builtin(self):
+        def test(_: bool):
+            pass
+        parameter = self.get_parameter(test)
+        result = self._resolver.resolve(parameter, None, self._injector)
+        self.assertIsNone(result)
+
+    def test_return_typing(self):
+        def test(_: List):
+            pass
+        parameter = self.get_parameter(test)
+        result = self._resolver.resolve(parameter, None, self._injector)
+        self.assertIsNone(result)
+
+    def test_return_has_service_called(self):
+        class TestClass:
+            pass
+
+        def test(_: TestClass):
+            pass
+        parameter = self.get_parameter(test)
+        self._injector.has_service = Mock(return_value=False)
+        self._resolver.resolve(parameter, None, self._injector)
+        self._injector.has_service.assert_called_with(TestClass)
+
+    def test_return_value(self):
+        class TestClass:
+            pass
+
+        def test(_: TestClass):
+            pass
+        parameter = self.get_parameter(test)
+        self._injector.has_service = Mock(return_value=True)
+        return_value = Mock
+        self._injector.get = Mock(return_value=return_value)
+        result = self._resolver.resolve(parameter, None, self._injector)
         self.assertEqual(result, return_value)

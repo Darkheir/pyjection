@@ -5,7 +5,7 @@ from inspect import signature
 
 from pyjection.errors import ServiceNotFoundError, ArgumentNotFoundError
 from pyjection.helper import get_service_subject_identifier
-from pyjection.resolvers import ServiceResolver, NameResolver
+from pyjection.resolvers import ServiceResolver, NameResolver, TypingResolver
 from pyjection.service import Service
 
 
@@ -24,6 +24,7 @@ class DependencyInjector(object):
         if not resolvers:
             self._resolvers = [
                 ServiceResolver(),
+                TypingResolver(),
                 NameResolver(),
             ]
 
@@ -141,7 +142,8 @@ class DependencyInjector(object):
             self._logger.error("No service has been declared with ID %s", identifier)
             raise ServiceNotFoundError("No service has been declared with this ID")
 
-    def _get_string_identifier(self, identifier):
+    @staticmethod
+    def _get_string_identifier(identifier):
         if isinstance(identifier, str):
             return identifier
         return get_service_subject_identifier(identifier)

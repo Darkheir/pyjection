@@ -3,6 +3,9 @@ Module that contains all the resolvers.
 
 A resolver is a class that is able to retrieve a dependency to inject.
 """
+import builtins
+import inspect
+import typing
 
 from pyjection.reference import Reference
 
@@ -46,3 +49,17 @@ class NameResolver(BaseResolver):
     def resolve(self, method_parameter, service, injector):
         if injector.has_service(method_parameter.name):
             return injector.get(method_parameter.name)
+
+
+class TypingResolver(BaseResolver):
+    """
+    Try to resolve the dependency based on the typing of the parameter.
+    """
+
+    def resolve(self, method_parameter, service, injector):
+        annotation = method_parameter.annotation
+        # Ignore typing annotation like `List` or builtins like `str`
+        if inspect.getmodule(annotation) in [typing, builtins]:
+            return None
+        if injector.has_service(annotation):
+            return injector.get(annotation)
